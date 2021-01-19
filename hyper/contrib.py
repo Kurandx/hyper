@@ -174,13 +174,14 @@ class HTTP20Adapter(HTTPAdapter):
         # so I'm not going to bother adding test coverage for it.
         class FakeOriginalResponse(object):  # pragma: no cover
             def __init__(self, headers):
-                self._headers = headers
+                self._headers = list(headers) # Fix one-time iteration (headers -- iterator)
 
             def get_all(self, name, default=None):
                 values = []
+                name = name.lower()
 
                 for n, v in self._headers:
-                    if n == name.lower():
+                    if n.decode('ascii').lower() == name: # `n` an array of bytes, and is not compared to a string
                         values.append(v)
 
                 if not values:
